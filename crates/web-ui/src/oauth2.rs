@@ -15,7 +15,7 @@ use axum_extra::extract::PrivateCookieJar;
 use kellnr_appstate::{AppState, DbState, SettingsState};
 use kellnr_auth::oauth2::{OAuth2Handler, generate_unique_username};
 use serde::{Deserialize, Serialize};
-use tracing::{error, info, trace, warn};
+use tracing::{error, trace, warn};
 use utoipa::ToSchema;
 
 use crate::error::RouteError;
@@ -174,7 +174,7 @@ pub async fn callback(
     let user_info = handler.extract_user_info(&token_result);
     let issuer = handler.issuer_url();
 
-    info!(
+    trace!(
         "OAuth2 authentication successful for subject: {}, email: {:?}",
         user_info.subject, user_info.email
     );
@@ -190,7 +190,7 @@ pub async fn callback(
             RouteError::Status(StatusCode::INTERNAL_SERVER_ERROR)
         })? {
         Some(user) => {
-            info!("Found existing user '{}' for OAuth2 identity", user.name);
+            trace!("Found existing user '{}' for OAuth2 identity", user.name);
             user
         }
         None => {
@@ -210,7 +210,7 @@ pub async fn callback(
             })
             .await;
 
-            info!(
+            trace!(
                 "Creating new OAuth2 user '{}' (admin: {}, read_only: {})",
                 username, user_info.is_admin, user_info.is_read_only
             );
@@ -235,7 +235,7 @@ pub async fn callback(
     };
 
     let jar = create_session_jar(cookies, &app_state, &user.name).await?;
-    info!("Created session for OAuth2 user: {}", user.name);
+    trace!("Created session for OAuth2 user: {}", user.name);
 
     // Redirect to UI root
     let mut base_path = app_state.settings.origin.path.clone();
