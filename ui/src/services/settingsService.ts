@@ -11,7 +11,9 @@ import { SETTINGS, DOCS_ENABLED, VERSION, OAUTH2_CONFIG } from '../remote-routes
  * Get startup configuration settings with source tracking
  */
 export async function getSettings(): Promise<ApiResult<Settings>> {
-  return apiGet<Settings>(SETTINGS)
+  return apiGet<Settings>(SETTINGS, undefined, {
+    redirectOnAuthError: false,
+  })
 }
 
 /**
